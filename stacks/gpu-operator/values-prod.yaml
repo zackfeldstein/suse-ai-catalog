@@ -1,0 +1,30 @@
+# Production profile
+# - Operator manages drivers (more turn-key, but requires privileged workloads)
+# - Monitoring enabled by default
+
+driver:
+  enabled: true
+
+toolkit:
+  enabled: true
+  env:
+    - name: CONTAINERD_CONFIG
+      value: /var/lib/rancher/rke2/agent/etc/containerd/config.toml.tmpl
+    - name: CONTAINERD_SOCKET
+      value: /run/k3s/containerd/containerd.sock
+    - name: CONTAINERD_RUNTIME_CLASS
+      value: nvidia
+    # Safer default for multi-tenant clusters; GPU workloads should opt-in via runtimeClassName.
+    # Set to "true" only if you want NVIDIA runtime as the default for all pods.
+    - name: CONTAINERD_SET_AS_DEFAULT
+      value: "false"
+
+nfd:
+  enabled: true
+
+validator:
+  enabled: true
+
+dcgmExporter:
+  enabled: true
+

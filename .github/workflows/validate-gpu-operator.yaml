@@ -1,0 +1,55 @@
+name: validate-gpu-operator
+
+on:
+  pull_request:
+    paths:
+      - "stacks/gpu-operator/**"
+      - ".github/workflows/validate-gpu-operator.yaml"
+  push:
+    branches: ["main"]
+    paths:
+      - "stacks/gpu-operator/**"
+      - ".github/workflows/validate-gpu-operator.yaml"
+
+jobs:
+  helm-render:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.14.4
+
+      - name: Add NVIDIA Helm repo
+        run: |
+          helm repo add nvidia https://nvidia.github.io/gpu-operator
+          helm repo update
+
+      - name: Fail if chart version placeholder is still present
+        run: |
+          if grep -qE '^\s*version:\s*0\.0\.0\s*$' stacks/gpu-operator/fleet.yaml; then
+            echo "fleet.yaml still has version: 0.0.0 placeholder. Pin a real chart version after validating."
+            exit 1
+          fi
+
+      - name: Render (dev values)
+        run: |
+          CHART_VERSION="$(awk '/^  version:/{print $2}' stacks/gpu-operator/fleet.yaml | tr -d '"' | tr -d "'")"
+          helm template gpu-operator nvidia/gpu-operator \
+            --version "${CHART_VERSION}" \
+            --namespace gpu-operator \
+            -f stacks/gpu-operator/values-dev.yaml \
+            > /tmp/gpu-operator-dev.yaml
+
+      - name: Render (prod values)
+        run: |
+          CHART_VERSION="$(awk '/^  version:/{print $2}' stacks/gpu-operator/fleet.yaml | tr -d '"' | tr -d "'")"
+          helm template gpu-operator nvidia/gpu-operator \
+            --version "${CHART_VERSION}" \
+            --namespace gpu-operator \
+            -f stacks/gpu-operator/values-prod.yaml \
+            > /tmp/gpu-operator-prod.yaml
+

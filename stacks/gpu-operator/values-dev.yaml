@@ -1,0 +1,30 @@
+# Dev / sandbox profile
+# - Optimized for quick iteration
+# - Assumes NVIDIA drivers are pre-installed on GPU nodes
+
+driver:
+  enabled: false
+
+toolkit:
+  enabled: true
+  env:
+    - name: CONTAINERD_CONFIG
+      value: /var/lib/rancher/rke2/agent/etc/containerd/config.toml.tmpl
+    - name: CONTAINERD_SOCKET
+      value: /run/k3s/containerd/containerd.sock
+    - name: CONTAINERD_RUNTIME_CLASS
+      value: nvidia
+    - name: CONTAINERD_SET_AS_DEFAULT
+      value: "false"
+
+# If you already run NFD in-cluster, set this to false to avoid duplicates.
+nfd:
+  enabled: true
+
+# Keep validation on, but you may disable in very small/dev clusters.
+validator:
+  enabled: true
+
+dcgmExporter:
+  enabled: true
+

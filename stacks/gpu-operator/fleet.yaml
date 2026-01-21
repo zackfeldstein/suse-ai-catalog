@@ -1,0 +1,15 @@
+defaultNamespace: gpu-operator
+
+# Fleet will deploy this stack as a Helm release.
+# Chart coordinates are pinned; update deliberately after validating on RKE2.
+helm:
+  repo: https://nvidia.github.io/gpu-operator
+  chart: gpu-operator
+  # NOTE: Pin an exact chart version you’ve validated.
+  # If you don’t know the version yet, start by pinning a known-good one and let CI enforce it.
+  version: 0.0.0
+  releaseName: gpu-operator
+  valuesFiles:
+    # Default to prod; consumers can override to values-dev.yaml via their Fleet GitRepo config
+    - values-prod.yaml
+
