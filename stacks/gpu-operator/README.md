@@ -4,41 +4,30 @@ Deploys the **NVIDIA GPU Operator** onto RKE2 (containerd) using Rancher Fleet.
 
 ## What this stack does
 
-- Installs the NVIDIA GPU Operator via Helm.
-- Applies **RKE2/containerd**-specific toolkit configuration defaults.
-- Provides two opinionated profiles:
-  - `values-dev.yaml`: assumes drivers are pre-installed (fast sandbox bring-up).
-  - `values-prod.yaml`: SLES-friendly production defaults (assumes pre-installed drivers, monitoring enabled).
-  - `values-prod-driver.yaml`: optional layer to enable operator-managed drivers.
+- Applies an **RKE2-native** `HelmChart` custom resource (`helm.cattle.io/v1`) that installs the GPU Operator.
+- Uses the same installation mechanism as the working manual manifest you validated on SLES/RKE2.
+- Sets minimal required values:
+  - `driver.enabled: false`
+  - `toolkit.env.CONTAINERD_SOCKET=/run/k3s/containerd/containerd.sock`
 
 ## Prerequisites / assumptions
 
 - You have GPU-capable worker nodes (NVIDIA GPUs).
 - Cluster is **RKE2** (containerd).
-- You understand whether you want the operator to **manage drivers**:
-  - Dev profile defaults to **driver disabled** (assumes pre-installed driver).
-  - Prod profile defaults to **driver disabled** (SLES-friendly); optionally layer `values-prod-driver.yaml` to enable operator-managed drivers.
 
 ## RKE2 containerd paths (defaults)
 
-These defaults are commonly referenced for RKE2:
+This stack only sets:
 
-- `CONTAINERD_CONFIG`: `/var/lib/rancher/rke2/agent/etc/containerd/config.toml.tmpl`
 - `CONTAINERD_SOCKET`: `/run/k3s/containerd/containerd.sock`
-- `CONTAINERD_RUNTIME_CLASS`: `nvidia`
-- `CONTAINERD_SET_AS_DEFAULT`: `"false"` by default in this catalog (safer; require explicit `runtimeClassName: nvidia` for GPU workloads)
-
-If your RKE2 differs (custom paths, hardened config, etc.), override via values.
 
 ## How to deploy with Fleet
 
 Point Fleet at `stacks/gpu-operator/` (this folder) in your repo.
 
 - The Fleet bundle is defined in `fleet.yaml`.
-- Choose a profile by selecting the appropriate values file in your Fleet configuration:
-  - dev: `values-dev.yaml`
-  - prod: `values-prod.yaml`
-  - prod + driver managed: `values-prod.yaml` + `values-prod-driver.yaml` (layered in that order)
+- The RKE2 `HelmChart` resource is defined in `helmchart.yaml`.
+- To customize values, edit `spec.valuesContent` in `helmchart.yaml` (or overlay it in a downstream repo).
 
 ## Smoke test (optional)
 

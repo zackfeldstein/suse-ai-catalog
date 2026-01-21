@@ -12,44 +12,30 @@ on:
       - ".github/workflows/validate-gpu-operator.yaml"
 
 jobs:
-  helm-render:
+  validate-helmchart-manifest:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Helm
-        uses: azure/setup-helm@v4
-        with:
-          version: v3.14.4
-
-      - name: Add NVIDIA Helm repo
+      - name: Validate HelmChart manifest exists
         run: |
-          helm repo add nvidia https://helm.ngc.nvidia.com/nvidia
-          helm repo update
+          test -f stacks/gpu-operator/helmchart.yaml
 
-      - name: Fail if chart version placeholder is still present
+      - name: Validate HelmChart manifest contains expected fields
         run: |
-          if grep -qE '^\s*version:\s*0\.0\.0\s*$' stacks/gpu-operator/fleet.yaml; then
-            echo "fleet.yaml still has version: 0.0.0 placeholder. Pin a real chart version after validating."
-            exit 1
-          fi
-
-      - name: Render (dev values)
-        run: |
-          CHART_VERSION="$(awk '/^  version:/{print $2}' stacks/gpu-operator/fleet.yaml | tr -d '"' | tr -d "'")"
-          helm template gpu-operator nvidia/gpu-operator \
-            --version "${CHART_VERSION}" \
-            --namespace gpu-operator \
-            -f stacks/gpu-operator/values-dev.yaml \
-            > /tmp/gpu-operator-dev.yaml
-
-      - name: Render (prod values)
-        run: |
-          CHART_VERSION="$(awk '/^  version:/{print $2}' stacks/gpu-operator/fleet.yaml | tr -d '"' | tr -d "'")"
-          helm template gpu-operator nvidia/gpu-operator \
-            --version "${CHART_VERSION}" \
-            --namespace gpu-operator \
-            -f stacks/gpu-operator/values-prod.yaml \
-            > /tmp/gpu-operator-prod.yaml
+          set -euo pipefail
+          f="stacks/gpu-operator/helmchart.yaml"
+          grep -qE '^apiVersion: helm\\.cattle\\.io/v1$' "$f"
+          grep -qE '^kind: HelmChart$' "$f"
+          grep -qE '^  name: gpu-operator$' "$f"
+          grep -qE '^  namespace: kube-system$' "$f"
+          grep -qE '^  repo: https://helm\\.ngc\\.nvidia\\.com/nvidia$' "$f"
+          grep -qE '^  chart: gpu-operator$' "$f"
+          grep -qE '^  targetNamespace: gpu-operator$' "$f"
+          grep -qE '^  createNamespace: true$' "$f"
+          grep -qE '^  version: v25\\.10\\.1$' "$f"
+          grep -qE '^    driver:$' "$f"
+          grep -qE '^      enabled: false$' "$f"
+          grep -qE '^      value: /run/k3s/containerd/containerd\\.sock$' "$f"
 

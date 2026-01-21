@@ -1,17 +1,8 @@
-defaultNamespace: gpu-operator
-
-# Fleet will deploy this stack as a Helm release.
-# Chart coordinates are pinned; update deliberately after validating on RKE2.
-helm:
-  # Repo used by RKE2 HelmChart installs on SLES
-  repo: https://helm.ngc.nvidia.com/nvidia
-  chart: gpu-operator
-  # NOTE: Pin an exact chart version you’ve validated.
-  # If you don’t know the version yet, start by pinning a known-good one and let CI enforce it.
-  version: v25.10.1
-  releaseName: gpu-operator
-  createNamespace: true
-  valuesFiles:
-    # Default to prod; consumers can override to values-dev.yaml via their Fleet GitRepo config
-    - values-prod.yaml
+#
+# This stack is deployed by applying an RKE2-native HelmChart custom resource (`helm.cattle.io/v1`).
+# RKE2's helm-controller then installs/maintains the GPU Operator chart.
+#
+# Rationale: this matches the installation mechanism proven to work on RKE2/SLES.
+#
+defaultNamespace: kube-system
 
