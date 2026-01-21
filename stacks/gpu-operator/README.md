@@ -8,7 +8,8 @@ Deploys the **NVIDIA GPU Operator** onto RKE2 (containerd) using Rancher Fleet.
 - Applies **RKE2/containerd**-specific toolkit configuration defaults.
 - Provides two opinionated profiles:
   - `values-dev.yaml`: assumes drivers are pre-installed (fast sandbox bring-up).
-  - `values-prod.yaml`: enables driver management and monitoring (production-oriented).
+  - `values-prod.yaml`: SLES-friendly production defaults (assumes pre-installed drivers, monitoring enabled).
+  - `values-prod-driver.yaml`: optional layer to enable operator-managed drivers.
 
 ## Prerequisites / assumptions
 
@@ -16,7 +17,7 @@ Deploys the **NVIDIA GPU Operator** onto RKE2 (containerd) using Rancher Fleet.
 - Cluster is **RKE2** (containerd).
 - You understand whether you want the operator to **manage drivers**:
   - Dev profile defaults to **driver disabled** (assumes pre-installed driver).
-  - Prod profile defaults to **driver enabled** (operator-managed driver).
+  - Prod profile defaults to **driver disabled** (SLES-friendly); optionally layer `values-prod-driver.yaml` to enable operator-managed drivers.
 
 ## RKE2 containerd paths (defaults)
 
@@ -37,6 +38,7 @@ Point Fleet at `stacks/gpu-operator/` (this folder) in your repo.
 - Choose a profile by selecting the appropriate values file in your Fleet configuration:
   - dev: `values-dev.yaml`
   - prod: `values-prod.yaml`
+  - prod + driver managed: `values-prod.yaml` + `values-prod-driver.yaml` (layered in that order)
 
 ## Smoke test (optional)
 

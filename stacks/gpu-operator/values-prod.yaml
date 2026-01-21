@@ -1,9 +1,9 @@
 # Production profile
-# - Operator manages drivers (more turn-key, but requires privileged workloads)
+# - SLES-friendly default: assumes drivers are pre-installed on GPU nodes
 # - Monitoring enabled by default
 
 driver:
-  enabled: true
+  enabled: false
 
 toolkit:
   enabled: true

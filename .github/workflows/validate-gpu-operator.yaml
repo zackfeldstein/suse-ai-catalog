@@ -25,7 +25,7 @@ jobs:
 
       - name: Add NVIDIA Helm repo
         run: |
-          helm repo add nvidia https://nvidia.github.io/gpu-operator
+          helm repo add nvidia https://helm.ngc.nvidia.com/nvidia
           helm repo update
 
       - name: Fail if chart version placeholder is still present
