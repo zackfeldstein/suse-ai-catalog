@@ -53,3 +53,7 @@ Point Fleet at `stacks/gpu-operator/` (this folder) in your repo.
 - RKE2 GPU operator guidance: `https://docs.rke2.io/add-ons/gpu_operators`
 - NVIDIA GPU Operator docs: `https://docs.nvidia.com/datacenter/cloud-native/gpu-operator/latest/`
 
+## Versioning note
+
+The GPU Operator Helm chart versions in the NGC repo are typically formatted like `v25.10.1` (not `0.x`).
+

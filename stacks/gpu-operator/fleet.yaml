@@ -8,7 +8,7 @@ helm:
   chart: gpu-operator
   # NOTE: Pin an exact chart version you’ve validated.
   # If you don’t know the version yet, start by pinning a known-good one and let CI enforce it.
-  version: 0.8.4
+  version: v25.10.1
   releaseName: gpu-operator
   createNamespace: true
   valuesFiles:
